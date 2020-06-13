@@ -1,25 +1,29 @@
 {
-	"manifest_version": 2, // Indique la version du manifest (toujours 2)
-	"name": "Heyo", // Le nom de votre extension
-	"description": "Hey", // La description
-	"version": "1.0", // La version en en l'occurrence la première donc 1.0
-	"permissions": [ // Les permissions, on y reviendra plus bas
+	"manifest_version": 2,
+	"name": "Geo Merding Tracker",
+	"description": "A content tracker that let to detect score and order of GeoGuessr rounds",
+	"version": "0.0.2",
+	"permissions": [
 		"http://*/*",
 		"https://*/*",
 		"cookies",
 		"storage"
 	],
-	"browser_action": {   // Les paramètres
-		"default_icon" : "img/icon.png", // L'icône qui s'affiche en haut à droite de votre navigateur
-		"default_popup": "popup.html" // Le popup qui s'affichera quand vous cliquez sur l'îcone
+	"browser_action": {
+		"default_icon" : "media/images/icon.png", // L'icône qui s'affiche en haut à droite de votre navigateur
+		"default_popup": "html/main.html"
 	},
 	"content_scripts": [
 		{
-		  "matches": ["https://www.geoguessr.com/game/*"],
-		  "js": ["test.js"]
+			"matches": [
+			  "https://www.geoguessr.com/*"
+			],
+			"js": [
+			  "js/main.js"
+			]
 		}
-	  ],
+	],
 	"icons": { // L'îcone qui s'affichera lorse que vous êtes sur la page extensions des paramètre
-		"128" : "img/icon.png" // 128 = 128x128 la taille de votre image
+		"128" : "media/images/icon.png" // 128 = 128x128 la taille de votre image
 	}
 }
