@@ -6,31 +6,12 @@ class Main {
 
 		this.roundResultParser = new RoundResultParser();
 		setInterval(this.updateState.bind(this), 1000);
-		
-		this.testStorage();
-	}
-
-	testStorage() {
-		var value = "DrawRunner";
-		var value2 = "DrawRunner2";
-
-		chrome.storage.local.set({ geoMerding: value }, () => {
-			console.log('Value has been set to ' + value);
-		});
-
-		chrome.storage.local.set({ geoMerding2: value2 }, () => {
-			console.log('Value has been set to ' + value);
-		});
-
-		chrome.storage.local.get("geoMerding2", (theValue) => {
-			console.log(theValue);
-		});
 	}
 
 	updateState() {
 		var pageContainsResult = this.roundResultParser.containsElement('result');
 
-		console.log(pageContainsResult + "  " + this.isPlaying);
+		// console.log(pageContainsResult + "  " + this.isPlaying);
 
 		if(this.isPlaying) {
 			if(pageContainsResult) {
@@ -38,16 +19,16 @@ class Main {
 				var gameStatusElements = document.getElementsByClassName('game-status');
 
 				if(scoreBarLabelElements.length > 0 && gameStatusElements.length > 0) {
-					var roundId = this.roundResultParser.parseChallengeId();
+					var challengeId = this.roundResultParser.parseChallengeId();
 
-					var roundNumber = this.roundResultParser.parseRoundNumber(gameStatusElements);
+					var roundOrder = this.roundResultParser.parseRoundOrder(gameStatusElements);
 					var roundScore = this.roundResultParser.parseRoundScore(scoreBarLabelElements);
 
 					var totalScore = this.roundResultParser.parseTotalScore(gameStatusElements);
 
-					console.log(roundId + "  " + roundNumber + "  " + roundScore + "  " + totalScore);
+					// console.log(challengeId + "  " + roundOrder + "  " + roundScore + "  " + totalScore);
 
-					console.log("ok");
+					this.transmitRound(challengeId, roundOrder, roundScore, totalScore)
 
 					this.isPlaying = false;
 				}
@@ -57,6 +38,20 @@ class Main {
 				this.isPlaying = true;
 			}
 		}
+	}
+
+	transmitRound(challengeId, roundOrder, roundScore, totalScore) {
+		var roundData = {
+			type: 'ROUND',
+			payload: {
+				challenge_id: challengeId,
+				round_order: roundOrder,
+				round_score: roundScore,
+				total_score: totalScore
+			}
+		};
+
+		chrome.runtime.sendMessage(roundData);
 	}
 }
 
@@ -77,7 +72,7 @@ class RoundResultParser {
 		}
 	}
 
-	parseRoundNumber(gameStatusElements) {
+	parseRoundOrder(gameStatusElements) {
 		var roundNumberElement = this.findGameStatusElement("round-number", gameStatusElements);
 
 		if(roundNumberElement) {
@@ -85,10 +80,10 @@ class RoundResultParser {
 
 			if(gameStatusBobyElements.length >= 1) {
 				var scoreTextTokens = gameStatusBobyElements[0].innerText.split(' / ');
-				var roundNumber = parseInt(scoreTextTokens[0]);
+				var roundOrder = parseInt(scoreTextTokens[0]);
 
-				if(!isNaN(roundNumber)) {
-					return roundNumber;
+				if(!isNaN(roundOrder)) {
+					return roundOrder;
 				} else {
 					return -1;
 				}

@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
-	"name": "Geo Merding Tracker",
-	"description": "A content tracker that let to detect score and order of GeoGuessr rounds",
-	"version": "0.0.2",
+	"name": "GeoSync",
+	"description": "A content tracker that let to detect the score and the order of GeoGuessr rounds",
+	"version": "0.1.0",
 	"permissions": [
 		"http://*/*",
 		"https://*/*",
@@ -10,8 +10,13 @@
 		"storage"
 	],
 	"browser_action": {
-		"default_icon" : "media/images/icon.png", // L'icône qui s'affiche en haut à droite de votre navigateur
-		"default_popup": "html/main.html"
+		"default_icon" : "media/images/favicon.png" // L'icône qui s'affiche en haut à droite de votre navigateur
+	},
+	"background": {
+		"scripts": [
+			"js/round_emitter.js"
+		],
+		"persistent": true
 	},
 	"content_scripts": [
 		{
@@ -19,11 +24,11 @@
 			  "https://www.geoguessr.com/*"
 			],
 			"js": [
-			  "js/main.js"
+			  "js/round_analyzer.js"
 			]
 		}
 	],
-	"icons": { // L'îcone qui s'affichera lorse que vous êtes sur la page extensions des paramètre
-		"128" : "media/images/icon.png" // 128 = 128x128 la taille de votre image
+	"icons": { // L'îcone qui s'affichera lorsquee que vous êtes sur la page extensions des paramètre
+		"128" : "media/images/favicon.png" // 128 = 128x128 la taille de votre image
 	}
 }
