@@ -6,6 +6,8 @@ class Main {
 
 		this.roundResultParser = new RoundResultParser();
 		setInterval(this.updateState.bind(this), 1000);
+
+		this.transmitPresence();
 	}
 
 	updateState() {
@@ -40,9 +42,18 @@ class Main {
 		}
 	}
 
+	transmitPresence() {
+		var presenceData = {
+			type: 'POST_PRESENCE',
+			payload: true
+		};
+
+		chrome.runtime.sendMessage(presenceData);
+	}
+
 	transmitRound(challengeId, roundOrder, roundScore, totalScore) {
-		var roundData = {
-			type: 'ROUND',
+		var roundResultData = {
+			type: 'POST_ROUND_RESULT',
 			payload: {
 				challenge_id: challengeId,
 				round_order: roundOrder,
@@ -51,7 +62,7 @@ class Main {
 			}
 		};
 
-		chrome.runtime.sendMessage(roundData);
+		chrome.runtime.sendMessage(roundResultData);
 	}
 }
 
