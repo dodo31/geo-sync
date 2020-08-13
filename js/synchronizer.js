@@ -14,7 +14,9 @@ function postPresenceCookie() {
 	chrome.cookies.set({ url: "http://squad-guessr.herokuapp.com/", name: "is_geo-sync_installed", value: "true" });
 }
 
-function postRoundResult(requestPayload) {
+function postRoundResult(request) {
+	var requestPayload = request.payload;
+
 	const targetUrl = "https://squad-guessr.herokuapp.com/";
 	// const targetUrl = "http://localhost:3000/";
 
@@ -39,8 +41,6 @@ function postRoundResult(requestPayload) {
 				
 				var roundRequest = new XMLHttpRequest();
 				roundRequest.open('POST', targetUrl + "round", true);
-
-				console.log(roundRequest);
 
 				roundRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 				roundRequest.setRequestHeader("Authorization", jwt);
