@@ -22,7 +22,7 @@ function postPresenceCookie() {
 
 		if(!doesCookieExists) {
 			// WARNING : Do not change it to httpS !!!
-			chrome.cookies.set({ url: "http://squad-guessr.herokuapp.com/", name: "is_geo-sync_installed", value: "false" }, (cookie) => {
+			chrome.cookies.set({ url: "http://squad-guessr.herokuapp.com/", name: "is_geo-sync_installed", value: "true" }, (cookie) => {
 				console.log(JSON.stringify(cookie));
 				console.log(chrome.extension.lastError);
 				console.log(chrome.runtime.lastError);
