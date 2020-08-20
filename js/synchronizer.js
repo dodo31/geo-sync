@@ -1,4 +1,4 @@
-const PRESENCE_COOKIE_NAME = "is_geo-sync_installed";
+const PRESENCE_COOKIE_NAME = "is_geo_sync_installed";
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	switch(request.type) {
