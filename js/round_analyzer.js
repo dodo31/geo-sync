@@ -121,6 +121,8 @@ class RoundResultParser {
 
 					var numberRegex = new RegExp('^\\d+$');
 
+					scoreContentText = scoreContentText.replace(",", "");
+
 					for (let i = 0; i < scoreContentText.length && (isReadingScore || (!isReadingScore && scoreText.length == 0)); i++) {
 						const scoreContentChar = scoreContentText.charAt(i);
 						
