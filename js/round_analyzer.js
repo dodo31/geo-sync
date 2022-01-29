@@ -13,8 +13,6 @@ class Main {
 	updateState() {
 		const pageContainsResult = this.pageContainResult();
 
-		console.log(pageContainsResult);
-
 		// console.log(pageContainsResult + "  " + this.isPlaying);
 
 		if (this.isPlaying) {
@@ -33,7 +31,7 @@ class Main {
 
 					var totalScore = this.roundResultParser.parseTotalScore(gameStatusElement);
 
-					console.log(challengeId + "  " + roundOrder + "  " + roundScore + "  " + totalScore);
+					// console.log(challengeId + "  " + roundOrder + "  " + roundScore + "  " + totalScore);
 
 					this.transmitRound(challengeId, roundOrder, roundScore, totalScore);
 
@@ -186,8 +184,6 @@ class RoundResultParser {
 				var scoreText = gameStatusValueElement.innerText.replace(/[, ]+/g, "");
 				var score = parseInt(scoreText);
 				
-				console.log(gameStatusValueElement.innerText + "  " + scoreText);
-
 				if (!isNaN(score)) {
 					return score;
 				} else {

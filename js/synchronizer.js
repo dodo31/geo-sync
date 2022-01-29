@@ -45,10 +45,13 @@ function postRoundResult(request) {
 		squadGuessrCookies.forEach((squadGuessrCookie) => {
 			var lobbyAddress = squadGuessrCookie.name;
 			var jwt = squadGuessrCookie.value;
+			
+			const isRoundScore = this.isScoreValid(requestPayload.round_score);
+			const isTotalScore = this.isScoreValid(requestPayload.total_score);
 
 			if(lobbyAddress && requestPayload.challenge_id
-			&& requestPayload.round_order && requestPayload.round_score
-			&& requestPayload.total_score) {
+			&& requestPayload.round_order && isRoundScore
+			&& isTotalScore) {
 				if(isLobbyAddressValid(lobbyAddress)) {
 					var roundParams = '';
 					roundParams += 'lobby_address=' + lobbyAddress;
@@ -87,4 +90,8 @@ function isLobbyAddressValid(lobbyAddress) {
 	return lobbyAddress.length >= 10
 		&& lobbyAddress != PRESENCE_COOKIE_NAME
 		&& !lobbyAddress.includes("_");
+}
+
+function isScoreValid(score) {
+	return (score || (!score && score == 0));
 }
