@@ -11,41 +11,50 @@ class Main {
 	}
 
 	updateState() {
-		var pageContainsResult = this.roundResultParser.containsElement('result');
+		const pageContainsResult = this.pageContainResult();
+
+		console.log(pageContainsResult);
 
 		// console.log(pageContainsResult + "  " + this.isPlaying);
 
-		if(this.isPlaying) {
-			if(pageContainsResult) {
-				var scoreBarLabelElements = document.getElementsByClassName('score-bar__label');
-				var gameStatusElements = document.getElementsByClassName('game-status');
+		if (this.isPlaying) {
+			if (pageContainsResult) {
+				var gameStatusElements = document.querySelectorAll('[class^="status_inner"]');
+				var scoreBarLabelElements = document.querySelectorAll('[class^="round-result_score"]');
 
-				if(scoreBarLabelElements.length > 0 && gameStatusElements.length > 0) {
+				if (scoreBarLabelElements.length > 0 && gameStatusElements.length > 0) {
+					const scoreBarLabelElement = scoreBarLabelElements[0];
+					const gameStatusElement = gameStatusElements[0];
+
 					var challengeId = this.roundResultParser.parseChallengeId();
 
-					var roundOrder = this.roundResultParser.parseRoundOrder(gameStatusElements);
-					var roundScore = this.roundResultParser.parseRoundScore(scoreBarLabelElements);
+					var roundOrder = this.roundResultParser.parseRoundOrder(gameStatusElement);
+					var roundScore = this.roundResultParser.parseRoundScore(scoreBarLabelElement);
 
-					var totalScore = this.roundResultParser.parseTotalScore(gameStatusElements);
+					var totalScore = this.roundResultParser.parseTotalScore(gameStatusElement);
 
-					// console.log(challengeId + "  " + roundOrder + "  " + roundScore + "  " + totalScore);
+					console.log(challengeId + "  " + roundOrder + "  " + roundScore + "  " + totalScore);
 
-					this.transmitRound(challengeId, roundOrder, roundScore, totalScore)
+					this.transmitRound(challengeId, roundOrder, roundScore, totalScore);
 
 					this.isPlaying = false;
 				}
 			}
 		} else {
-			if(!pageContainsResult) {
+			if (!pageContainsResult) {
 				this.isPlaying = true;
 			}
 		}
 	}
 
+	pageContainResult() {
+		return document.querySelectorAll('[class^="container_content"]').length > 0;
+	}
+
 	transmitPresence() {
 		var presenceData = {
-			type: 'POST_PRESENCE',
-			payload: true
+			type: "POST_PRESENCE",
+			payload: true,
 		};
 
 		chrome.runtime.sendMessage(presenceData);
@@ -53,19 +62,18 @@ class Main {
 
 	transmitRound(challengeId, roundOrder, roundScore, totalScore) {
 		var roundResultData = {
-			type: 'POST_ROUND_RESULT',
+			type: "POST_ROUND_RESULT",
 			payload: {
 				challenge_id: challengeId,
 				round_order: roundOrder,
 				round_score: roundScore,
-				total_score: totalScore
-			}
+				total_score: totalScore,
+			},
 		};
 
 		chrome.runtime.sendMessage(roundResultData);
 	}
 }
-
 
 // ================ < RoundResultParser > ==================== //
 
@@ -76,24 +84,24 @@ class RoundResultParser {
 
 		var pathNameTokens = currentPathName.split("/");
 
-		if(pathNameTokens.length > 0) {
+		if (pathNameTokens.length > 0) {
 			return pathNameTokens[pathNameTokens.length - 1];
 		} else {
 			return null;
 		}
 	}
 
-	parseRoundOrder(gameStatusElements) {
-		var roundNumberElement = this.findGameStatusElement("round-number", gameStatusElements);
+	parseRoundOrder(gameStatusElement) {
+		var roundNumberElement = this.findGameSectionElement("round-number", gameStatusElement);
 
-		if(roundNumberElement) {
-			var gameStatusBobyElements = roundNumberElement.getElementsByClassName('game-status__body');
+		if (roundNumberElement) {
+			var gameStatusBobyElements = roundNumberElement.querySelectorAll('[class^="status_value"]');
 
-			if(gameStatusBobyElements.length >= 1) {
-				var scoreTextTokens = gameStatusBobyElements[0].innerText.split(' / ');
+			if (gameStatusBobyElements.length >= 1) {
+				var scoreTextTokens = gameStatusBobyElements[0].innerText.split(" / ");
 				var roundOrder = parseInt(scoreTextTokens[0]);
 
-				if(!isNaN(roundOrder)) {
+				if (!isNaN(roundOrder)) {
 					return roundOrder;
 				} else {
 					return -1;
@@ -106,55 +114,55 @@ class RoundResultParser {
 		}
 	}
 
-	parseRoundScore(scoreBarLabelElements) {
-		if(scoreBarLabelElements.length >= 1) {
-			var scoreContentText = scoreBarLabelElements[0].innerText.toLowerCase();
+	parseRoundScore(scoreBarLabelElement) {
+		var scoreContentText = scoreBarLabelElement.innerText.toLowerCase();
 
-			if(this.isNoPointText(scoreContentText)) {
-				return 0;
+		if (this.isNoPointText(scoreContentText)) {
+			return 0;
+		} else {
+			if (this.isOnePointText(scoreContentText)) {
+				return 1;
 			} else {
-				if(this.isOnePointText(scoreContentText)) {
-					return 1;
-				} else {
-					var isReadingScore = false;
-					var scoreText = "";
+				var isReadingScore = false;
+				var scoreText = "";
 
-					var numberRegex = new RegExp('^\\d+$');
+				var numberRegex = new RegExp("^\\d+$");
 
-					scoreContentText = scoreContentText.replace(",", "");
+				scoreContentText = scoreContentText.replace(",", "");
 
-					for (let i = 0; i < scoreContentText.length && (isReadingScore || (!isReadingScore && scoreText.length == 0)); i++) {
-						const scoreContentChar = scoreContentText.charAt(i);
-						
-						if(numberRegex.test(scoreContentChar)) {
-							isReadingScore = true;
-							scoreText += scoreContentChar;
-						} else {
-							if(scoreContentChar.trim().length > 0) {
-								isReadingScore = false;
-							}
-						}
-					}
-	
-					if(scoreText.length > 0) {
-						var score = parseInt(scoreText);
+				for (
+					let i = 0;
+					i < scoreContentText.length && (isReadingScore || (!isReadingScore && scoreText.length == 0));
+					i++
+				) {
+					const scoreContentChar = scoreContentText.charAt(i);
 
-						if(!isNaN(score)) {
-							return score;
-						} else {
-							return -1;
-						}
+					if (numberRegex.test(scoreContentChar)) {
+						isReadingScore = true;
+						scoreText += scoreContentChar;
 					} else {
-						if(scoreContentText.includes('another')) {
-							return 1;
-						} else {
-							return -1;
+						if (scoreContentChar.trim().length > 0) {
+							isReadingScore = false;
 						}
 					}
 				}
+
+				if (scoreText.length > 0) {
+					var score = parseInt(scoreText);
+
+					if (!isNaN(score)) {
+						return score;
+					} else {
+						return -1;
+					}
+				} else {
+					if (scoreContentText.includes("another")) {
+						return 1;
+					} else {
+						return -1;
+					}
+				}
 			}
-		} else {
-			return -1;
 		}
 	}
 
@@ -163,21 +171,24 @@ class RoundResultParser {
 	}
 
 	isOnePointText(scoreContentText) {
-		return scoreContentText.includes("a point")
-			|| scoreContentText.includes("another point");
+		return scoreContentText.includes("a point") || scoreContentText.includes("another point");
 	}
 
-	parseTotalScore(gameStatusElements) {
-		var scoreElement = this.findGameStatusElement("score", gameStatusElements);
+	parseTotalScore(gameStatusElement) {
+		var scoreElement = this.findGameSectionElement("score", gameStatusElement);
 
-		if(scoreElement) {
-			var gameStatusBodyElements = scoreElement.getElementsByClassName('game-status__body');
+		if (scoreElement) {
+			var gameStatusValueElements = scoreElement.querySelectorAll('[class^="status_value"]');
 
-			if(gameStatusBodyElements.length >= 1) {
-				var scoreText = gameStatusBodyElements[0].innerText.replace(/\s/g, '');
+			if (gameStatusValueElements.length >= 1) {
+				var gameStatusValueElement = gameStatusValueElements[0];
+				
+				var scoreText = gameStatusValueElement.innerText.replace(/[, ]+/g, "");
 				var score = parseInt(scoreText);
+				
+				console.log(gameStatusValueElement.innerText + "  " + scoreText);
 
-				if(!isNaN(score)) {
+				if (!isNaN(score)) {
 					return score;
 				} else {
 					return -1;
@@ -190,15 +201,15 @@ class RoundResultParser {
 		}
 	}
 
-	findGameStatusElement(elementType, gameStatusElements) {
+	findGameSectionElement(elementType, gameStatusElement) {
 		var matchingElement = null;
 
-		for (var i = 0; i < gameStatusElements.length && !matchingElement; i++) {
-			var gameStatusElement = gameStatusElements[i];
-			var dataQaAttribute = gameStatusElement.getAttribute("data-qa")
+		for (var i = 0; i < gameStatusElement.childNodes.length && !matchingElement; i++) {
+			var gameSectionElement = gameStatusElement.childNodes[i];
+			var dataQaAttribute = gameSectionElement.getAttribute("data-qa");
 
-			if(dataQaAttribute == elementType) {
-				matchingElement = gameStatusElement;
+			if (dataQaAttribute == elementType) {
+				matchingElement = gameSectionElement;
 			}
 		}
 
@@ -210,7 +221,6 @@ class RoundResultParser {
 		return elements.length > 0;
 	}
 }
-
 
 // ================ < Start > ==================== //
 
